@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockFlow - Inventory Management System</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <section class="login-screen" id="loginScreen">
+    <div class="login-bg-shape shape-one"></div>
+    <div class="login-bg-shape shape-two"></div>
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon login-logo">SF</div>
+        <div>
+          <p class="eyebrow">StockFlow Access</p>
+          <h1>Login to Inventory</h1>
+          <p>Use demo credentials to test Admin, Manager, and Staff roles.</p>
+        </div>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <label>Staff ID</label>
+        <input id="loginStaffId" placeholder="Enter demo staff ID" autocomplete="username" required />
+
+        <label>Password</label>
+        <input id="loginPassword" type="password" placeholder="Enter password" autocomplete="current-password" required />
+
+        <button class="primary-btn login-btn" type="submit">Login</button>
+
+        <div class="demo-credentials">
+          <h3>Demo Staff IDs</h3>
+          <div class="credential-row"><span>Admin</span><code>admin</code><small>Password: 1234</small></div>
+          <div class="credential-row"><span>Manager</span><code>manager</code><small>Password: 1234</small></div>
+          <div class="credential-row"><span>Staff</span><code>staff</code><small>Password: 1234</small></div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">SF</div>
+        <div>
+          <h1>StockFlow</h1>
+          <p>Inventory System</p>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+        <button class="nav-btn" data-section="stores">Stores</button>
+        <button class="nav-btn" data-section="products">Products</button>
+        <button class="nav-btn" data-section="stock">Stock</button>
+        <button class="nav-btn" data-section="sales">Sales</button>
+        <button class="nav-btn" data-section="categories">Categories</button>
+        <button class="nav-btn" data-section="suppliers">Suppliers</button>
+        <button class="nav-btn" data-section="reports">Reports</button>
+        <button class="nav-btn" data-section="activity">Activity Log</button>
+        <button class="nav-btn" data-section="settings">Settings</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="ghost-btn" id="toggleTheme">Toggle Dark Mode</button>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div>
+          <p class="eyebrow">Business Dashboard</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="top-actions">
+          <div class="user-account" id="userAccount">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div class="user-meta">
+              <span class="user-name" id="userName">Admin User</span>
+              <span class="role-badge" id="userPill">ADMIN</span>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+              <span>Logout</span>
+            </button>
+          </div>
+          <select id="activeStoreSelect" class="store-switch"></select>
+          <button class="primary-btn" id="openProductModal">+ Add Product</button>
+        </div>
+      </header>
+
+      <section class="section active" id="dashboard">
+        <div class="store-summary" id="activeStoreSummary"></div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><span>Total Products</span><strong id="totalProducts">0</strong></div>
+          <div class="stat-card"><span>Inventory Value</span><strong id="inventoryValue">₹0</strong></div>
+          <div class="stat-card"><span>Total Sales</span><strong id="totalSales">₹0</strong></div>
+          <div class="stat-card"><span>Total Profit</span><strong id="totalProfit">₹0</strong></div>
+          <div class="stat-card warning"><span>Low Stock</span><strong id="lowStockCount">0</strong></div>
+          <div class="stat-card danger"><span>Out of Stock</span><strong id="outStockCount">0</strong></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel"><h3>Sales Overview</h3><canvas id="salesChart"></canvas></div>
+          <div class="panel"><h3>Category Stock</h3><canvas id="categoryChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Activity</h3></div>
+          <div id="activityList" class="activity-list"></div>
+        </div>
+      </section>
+
+
+      <section class="section" id="stores">
+        <div class="panel store-hero">
+          <div>
+            <p class="eyebrow">Multi Store Mode</p>
+            <h3>Manage inventory across all your stores</h3>
+            <p class="muted-text">Create branches, assign products to a store, and switch your dashboard between one store or all stores.</p>
+          </div>
+          <button class="primary-btn" id="openStoreModal">+ Add Store</button>
+        </div>
+        <div id="storeCards" class="cards-grid store-cards"></div>
+      </section>
+
+      <section class="section" id="products">
+        <div class="toolbar">
+          <input type="search" id="productSearch" placeholder="Search product or SKU..." />
+          <select id="storeFilter"></select>
+          <select id="categoryFilter"></select>
+          <select id="statusFilter">
+            <option value="all">All Status</option>
+            <option value="in">In Stock</option>
+            <option value="low">Low Stock</option>
+            <option value="out">Out of Stock</option>
+          </select>
+          <select id="sortProducts">
+            <option value="newest">Newest</option>
+            <option value="name">Name</option>
+            <option value="price">Selling Price</option>
+            <option value="quantity">Quantity</option>
+          </select>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Product</th><th>Store</th><th>SKU</th><th>Category</th><th>Supplier</th><th>Price</th><th>Qty</th><th>Status</th><th>Actions</th></tr></thead><tbody id="productsTable"></tbody></table></div>
+      </section>
+
+      <section class="section" id="stock">
+        <div class="panel">
+          <h3>Stock Adjustment</h3>
+          <form id="stockForm" class="form-grid">
+            <select id="stockProduct" required></select>
+            <select id="stockType"><option value="add">Add Stock</option><option value="reduce">Reduce Stock</option></select>
+            <input type="number" id="stockQty" placeholder="Quantity" min="1" required />
+            <input type="text" id="stockReason" placeholder="Reason" required />
+            <button class="primary-btn" type="submit">Update Stock</button>
+          </form>
+        </div>
+        <div class="panel"><h3>Stock Movement History</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Qty</th><th>Reason</th></tr></thead><tbody id="stockHistoryTable"></tbody></table></div></div>
+      </section>
+
+      <section class="section" id="sales">
+        <div class="panel">
+          <h3>Create Sale</h3>
+          <form id="saleForm" class="form-grid">
+            <input id="customerName" placeholder="Customer name" required />
+            <input id="customerPhone" placeholder="Customer phone / optional" />
+            <select id="saleProduct" required></select>
+            <input type="number" id="saleQty" placeholder="Quantity Sold" min="1" required />
+            <button class="primary-btn" type="submit">Create Sale & Invoice</button>
+          </form>
+        </div>
+        <div class="panel"><h3>Sales History</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Profit</th><th>Invoice</th></tr></thead><tbody id="salesTable"></tbody></table></div></div>
+      </section>
+
+      <section class="section" id="categories">
+        <div class="panel">
+          <h3>Add Category</h3>
+          <form id="categoryForm" class="inline-form"><input id="categoryName" placeholder="Category name" required /><button class="primary-btn">Add</button></form>
+        </div>
+        <div id="categoryCards" class="cards-grid"></div>
+      </section>
+
+      <section class="section" id="suppliers">
+        <div class="panel">
+          <h3>Add Supplier</h3>
+          <form id="supplierForm" class="form-grid">
+            <input id="supplierName" placeholder="Supplier name" required />
+            <input id="supplierPhone" placeholder="Contact number" />
+            <input id="supplierEmail" placeholder="Email" type="email" />
+            <input id="supplierAddress" placeholder="Address" />
+            <button class="primary-btn">Add Supplier</button>
+          </form>
+        </div>
+        <div class="panel"><h3>Supplier List</h3><div class="table-wrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Actions</th></tr></thead><tbody id="suppliersTable"></tbody></table></div></div>
+      </section>
+
+      <section class="section" id="reports">
+        <div class="stats-grid compact">
+          <button class="report-card" id="downloadPdf">Download PDF Report</button>
+          <button class="report-card" id="exportCsv">Export Products CSV</button>
+          <button class="report-card" id="backupJson">Backup JSON</button>
+          <label class="report-card upload-label">Import JSON<input type="file" id="importJson" accept="application/json" hidden /></label>
+        </div>
+        <div class="panel" id="reportArea">
+          <h3>Inventory Report</h3>
+          <div id="reportContent"></div>
+        </div>
+      </section>
+
+
+      <section class="section" id="activity">
+        <div class="panel store-hero">
+          <div>
+            <p class="eyebrow">Audit Trail</p>
+            <h3>Activity Log</h3>
+            <p class="muted-text">Track product changes, stock updates, store changes, invoices, sales and role actions.</p>
+          </div>
+          <button class="primary-btn" id="clearActivity">Clear Log</button>
+        </div>
+        <div class="panel">
+          <div id="fullActivityList" class="timeline-list"></div>
+        </div>
+      </section>
+
+      <section class="section" id="settings">
+        <div class="panel danger-zone">
+          <h3>Data Settings</h3>
+          <p>Clear all local data and restore sample records.</p>
+          <button class="danger-btn" id="resetData">Reset All Data</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="productModal">
+    <div class="modal-card">
+      <div class="modal-head"><h3 id="productModalTitle">Add Product</h3><button class="icon-btn" id="closeProductModal">×</button></div>
+      <form id="productForm" class="form-grid modal-grid">
+        <input type="hidden" id="productId" />
+        <input id="productName" placeholder="Product name" required />
+        <input id="productSku" placeholder="SKU / Product code" required />
+        <select id="productStore" required></select>
+        <select id="productCategory" required></select>
+        <select id="productSupplier" required></select>
+        <input type="number" id="purchasePrice" placeholder="Purchase price" min="0" required />
+        <input type="number" id="sellingPrice" placeholder="Selling price" min="0" required />
+        <input type="number" id="productQty" placeholder="Quantity" min="0" required />
+        <input type="number" id="lowLimit" placeholder="Low stock limit" min="0" required />
+        <input id="barcode" placeholder="Barcode / optional" />
+        <input type="file" id="productImage" accept="image/*" />
+        <textarea id="productDesc" placeholder="Product description"></textarea>
+        <button class="primary-btn full" type="submit">Save Product</button>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="modal" id="storeModal">
+    <div class="modal-card small-modal">
+      <div class="modal-head"><h3 id="storeModalTitle">Add Store</h3><button class="icon-btn" id="closeStoreModal">×</button></div>
+      <form id="storeForm" class="form-grid modal-grid">
+        <input type="hidden" id="storeId" />
+        <input id="storeName" placeholder="Store / Branch name" required />
+        <input id="storeCode" placeholder="Store code e.g. MUM-01" required />
+        <input id="storeManager" placeholder="Manager name" />
+        <input id="storePhone" placeholder="Contact number" />
+        <input id="storeAddress" placeholder="Store address" />
+        <button class="primary-btn full" type="submit">Save Store</button>
+      </form>
+    </div>
+  </div>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile quick navigation">
+    <button class="bottom-nav-btn active" data-section="dashboard"><span>⌂</span><small>Home</small></button>
+    <button class="bottom-nav-btn" data-section="products"><span>□</span><small>Products</small></button>
+    <button class="bottom-nav-btn" data-section="sales"><span>₹</span><small>Sales</small></button>
+    <button class="bottom-nav-btn" data-section="reports"><span>↧</span><small>Reports</small></button>
+  </nav>
+
+  <button class="mobile-fab" id="mobileFab" aria-label="Add product">+</button>
+
+  <div class="toast" id="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>
