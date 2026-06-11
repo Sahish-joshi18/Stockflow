@@ -133,7 +133,7 @@ Future versions can integrate Firebase or Supabase for real-time multi-user func
 ### Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/StockFlow-Inventory-Management-System.git
+git clone https://github.com/Sahish-joshi18/StockFlow.git
 ```
 
 ### Open Project
