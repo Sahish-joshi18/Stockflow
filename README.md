@@ -9,7 +9,7 @@ A modern, multi-store Inventory Management System built using **HTML, CSS, and J
 Add your deployed website link here:
 
 ```text
-https://your-live-demo-link.netlify.app/
+https://stock-flows.netlify.app/
 ```
 
 ---
